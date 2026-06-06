@@ -1,6 +1,6 @@
 {
   "name": "honcho-codex-plugin",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Honcho Codex plugin providing Codex hooks and MCP capabilities",
   "author": {
     "name": "Antigravity Dev Team"

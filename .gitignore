@@ -24,6 +24,8 @@ __pycache__/
 build/
 develop-eggs/
 dist/
+!honcho-codex-plugin/mcp/dist/
+!honcho-codex-plugin/mcp/dist/**
 downloads/
 eggs/
 .eggs/
