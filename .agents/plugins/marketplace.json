@@ -1,0 +1,20 @@
+{
+  "name": "honcho",
+  "interface": {
+    "displayName": "Honcho"
+  },
+  "plugins": [
+    {
+      "name": "honcho-codex-plugin",
+      "source": {
+        "source": "local",
+        "path": "./honcho-codex-plugin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "honcho-codex-plugin",
+  "version": "1.0.0",
+  "description": "Honcho Codex plugin providing Codex hooks and MCP capabilities",
+  "author": {
+    "name": "Antigravity Dev Team"
+  },
+  "license": "MIT",
+  "skills": "./skills/",
+  "hooks": "./.codex-plugin/hooks.json",
+  "mcpServers": "./.codex-plugin/mcp.json",
+  "interface": {
+    "displayName": "Honcho",
+    "shortDescription": "Honcho memory and personalization tools for Codex",
+    "developerName": "Antigravity Dev Team",
+    "category": "Productivity"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "honcho-codex-plugin": {
+      "command": "node",
+      "args": [
+        "./mcp/dist/index.js"
+      ],
+      "cwd": "."
+    }
+  }
+}
