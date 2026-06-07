@@ -1,5 +1,7 @@
 #!/usr/bin/env node
+import { createRequire } from "node:module";
 var __commonJS = (cb, mod) => () => (mod || cb((mod = { exports: {} }).exports, mod), mod.exports);
+var __require = /* @__PURE__ */ createRequire(import.meta.url);
 
 // node_modules/@honcho-ai/sdk/dist/api-version.js
 var require_api_version = __commonJS((exports) => {
@@ -15531,8 +15533,34 @@ var require_dist = __commonJS((exports) => {
 // ../hooks/prompt-submit.js
 var require_prompt_submit = __commonJS(() => {
   var { Honcho } = require_dist();
-  var apiKey = process.env.HONCHO_API_KEY;
-  var baseUrl = process.env.HONCHO_API_URL || "https://api.honcho.dev";
+  var fs = __require("fs");
+  var path = __require("path");
+  function readSharedConfig() {
+    const homeDir = process.env.HOME;
+    if (!homeDir) {
+      return {};
+    }
+    const configPath = path.join(homeDir, ".honcho", "config.json");
+    if (!fs.existsSync(configPath)) {
+      return {};
+    }
+    try {
+      const parsed = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return {};
+      }
+      return {
+        apiKey: typeof parsed.apiKey === "string" ? parsed.apiKey.trim() : "",
+        baseUrl: typeof parsed.environmentUrl === "string" ? parsed.environmentUrl.trim() : ""
+      };
+    } catch (error) {
+      console.error(`Failed to read ${configPath}:`, error.message);
+      return {};
+    }
+  }
+  var sharedConfig = readSharedConfig();
+  var apiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
+  var baseUrl = process.env.HONCHO_API_URL?.trim() || sharedConfig.baseUrl || "https://api.honcho.dev";
   var workspaceId = process.env.HONCHO_WORKSPACE_ID || "default";
   function emit(additionalContext = "") {
     process.stdout.write(`${JSON.stringify({

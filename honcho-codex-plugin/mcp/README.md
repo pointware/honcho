@@ -23,9 +23,10 @@ source tree.
 
 ## Environment
 
-The local MCP server reads standard Honcho environment variables:
+The local MCP server reads standard Honcho environment variables first, then
+falls back to `~/.honcho/config.json` when available:
 
-- `HONCHO_API_KEY` — required
+- `HONCHO_API_KEY` — required unless `honcho init` already stored `apiKey`
 - `HONCHO_API_URL` — optional, defaults to `https://api.honcho.dev`
 - `HONCHO_WORKSPACE_ID` — optional, defaults to `default`
 - `HONCHO_USER_NAME` — optional

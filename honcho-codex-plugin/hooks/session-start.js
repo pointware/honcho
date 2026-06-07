@@ -1,9 +1,39 @@
 #!/usr/bin/env node
 
 const { Honcho } = require("../mcp/node_modules/@honcho-ai/sdk");
+const fs = require("fs");
+const path = require("path");
 
-const apiKey = process.env.HONCHO_API_KEY;
-const baseUrl = process.env.HONCHO_API_URL || "https://api.honcho.dev";
+function readSharedConfig() {
+  const homeDir = process.env.HOME;
+  if (!homeDir) {
+    return {};
+  }
+
+  const configPath = path.join(homeDir, ".honcho", "config.json");
+  if (!fs.existsSync(configPath)) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {};
+    }
+
+    return {
+      apiKey: typeof parsed.apiKey === "string" ? parsed.apiKey.trim() : "",
+      baseUrl: typeof parsed.environmentUrl === "string" ? parsed.environmentUrl.trim() : "",
+    };
+  } catch (error) {
+    console.error(`Failed to read ${configPath}:`, error.message);
+    return {};
+  }
+}
+
+const sharedConfig = readSharedConfig();
+const apiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
+const baseUrl = process.env.HONCHO_API_URL?.trim() || sharedConfig.baseUrl || "https://api.honcho.dev";
 const workspaceId = process.env.HONCHO_WORKSPACE_ID || "default";
 
 function emit(additionalContext = "") {

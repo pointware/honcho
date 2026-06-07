@@ -10,11 +10,40 @@ import { fileURLToPath } from "url";
 
 const DEFAULT_BASE_URL = "https://api.honcho.dev";
 const LOCAL_HOSTS = new Set(["127.0.0.1", "localhost", "0.0.0.0"]);
+const HONCHO_CONFIG_RELATIVE_PATH = path.join(".honcho", "config.json");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const mcpDir = path.resolve(__dirname, "..");
 const pluginRoot = path.resolve(mcpDir, "..");
+
+function readSharedConfig() {
+  const homeDir = process.env.HOME;
+  if (!homeDir) {
+    return {};
+  }
+
+  const configPath = path.join(homeDir, HONCHO_CONFIG_RELATIVE_PATH);
+  if (!fs.existsSync(configPath)) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(fs.readFileSync(configPath, "utf8"));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return {};
+    }
+
+    return {
+      apiKey: typeof parsed.apiKey === "string" ? parsed.apiKey.trim() : "",
+      baseUrl: typeof parsed.environmentUrl === "string" ? parsed.environmentUrl.trim() : "",
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error(`Warning: failed to read ${configPath}: ${message}`);
+    return {};
+  }
+}
 
 function checkPort(port: number, host: string): Promise<boolean> {
   return new Promise((resolve) => {
@@ -152,16 +181,18 @@ async function ensureBackendRunning(baseUrl: string) {
   console.error("Warning: Honcho backend failed to start within 15 seconds.");
 }
 
-const apiKey = process.env.HONCHO_API_KEY;
+const sharedConfig = readSharedConfig();
+const apiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
 if (!apiKey) {
-  console.error("Error: HONCHO_API_KEY environment variable is required");
-  process.exit(1);
+  console.error(
+    "Warning: HONCHO_API_KEY is not set. Honcho MCP will start, but tool calls will fail until you export HONCHO_API_KEY or run `honcho init`.",
+  );
 }
 
-const userName = process.env.HONCHO_USER_NAME || process.env.USER || "user";
-const assistantName = process.env.HONCHO_ASSISTANT_NAME || "assistant";
-const baseUrl = process.env.HONCHO_API_URL || DEFAULT_BASE_URL;
-const workspaceId = process.env.HONCHO_WORKSPACE_ID || "default";
+const userName = process.env.HONCHO_USER_NAME?.trim() || process.env.USER || "user";
+const assistantName = process.env.HONCHO_ASSISTANT_NAME?.trim() || "assistant";
+const baseUrl = process.env.HONCHO_API_URL?.trim() || sharedConfig.baseUrl || DEFAULT_BASE_URL;
+const workspaceId = process.env.HONCHO_WORKSPACE_ID?.trim() || "default";
 
 const config = {
   apiKey,
