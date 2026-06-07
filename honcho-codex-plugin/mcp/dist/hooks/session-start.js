@@ -15535,6 +15535,7 @@ var require_session_start = __commonJS(() => {
   var { Honcho } = require_dist();
   var fs = __require("fs");
   var path = __require("path");
+  var DEFAULT_BASE_URL = "https://api.honcho.dev";
   function readSharedConfig() {
     const homeDir = process.env.HOME;
     if (!homeDir) {
@@ -15558,9 +15559,13 @@ var require_session_start = __commonJS(() => {
       return {};
     }
   }
+  function readEnvBaseUrl() {
+    return process.env.HONCHO_API_URL?.trim() || process.env.HONCHO_BASE_URL?.trim() || process.env.HONCHO_URL?.trim() || "";
+  }
   var sharedConfig = readSharedConfig();
-  var apiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
-  var baseUrl = process.env.HONCHO_API_URL?.trim() || sharedConfig.baseUrl || "https://api.honcho.dev";
+  var rawApiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
+  var apiKey = rawApiKey === "YOUR_HONCHO_API_KEY" ? "" : rawApiKey;
+  var baseUrl = readEnvBaseUrl() || sharedConfig.baseUrl || DEFAULT_BASE_URL;
   var workspaceId = process.env.HONCHO_WORKSPACE_ID || "default";
   function emit(additionalContext = "") {
     process.stdout.write(`${JSON.stringify({
@@ -15606,13 +15611,13 @@ var require_session_start = __commonJS(() => {
   async function main() {
     const payload = await readStdinJson();
     const sessionId = getSessionId(payload);
-    if (!apiKey || apiKey === "YOUR_HONCHO_API_KEY") {
+    if (!apiKey && baseUrl === DEFAULT_BASE_URL) {
       emit("");
       return;
     }
     try {
       const honcho = new Honcho({
-        apiKey,
+        apiKey: apiKey || undefined,
         baseURL: baseUrl,
         workspaceId
       });

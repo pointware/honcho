@@ -44668,6 +44668,9 @@ var __filename2 = fileURLToPath(import.meta.url);
 var __dirname2 = path.dirname(__filename2);
 var mcpDir = path.resolve(__dirname2, "..");
 var pluginRoot = path.resolve(mcpDir, "..");
+function readEnvBaseUrl() {
+  return process.env.HONCHO_API_URL?.trim() || process.env.HONCHO_BASE_URL?.trim() || process.env.HONCHO_URL?.trim() || "";
+}
 function readSharedConfig() {
   const homeDir = process.env.HOME;
   if (!homeDir) {
@@ -44800,14 +44803,19 @@ async function ensureBackendRunning(baseUrl) {
   console.error("Warning: Honcho backend failed to start within 15 seconds.");
 }
 var sharedConfig = readSharedConfig();
-var apiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
-if (!apiKey) {
-  console.error("Warning: HONCHO_API_KEY is not set. Honcho MCP will start, but tool calls will fail until you export HONCHO_API_KEY or run `honcho init`.");
-}
+var rawApiKey = process.env.HONCHO_API_KEY?.trim() || sharedConfig.apiKey || "";
+var apiKey = rawApiKey === "YOUR_HONCHO_API_KEY" ? "" : rawApiKey;
 var userName = process.env.HONCHO_USER_NAME?.trim() || process.env.USER || "user";
 var assistantName = process.env.HONCHO_ASSISTANT_NAME?.trim() || "assistant";
-var baseUrl = process.env.HONCHO_API_URL?.trim() || sharedConfig.baseUrl || DEFAULT_BASE_URL;
+var baseUrl = readEnvBaseUrl() || sharedConfig.baseUrl || DEFAULT_BASE_URL;
 var workspaceId = process.env.HONCHO_WORKSPACE_ID?.trim() || "default";
+if (!apiKey) {
+  if (baseUrl === DEFAULT_BASE_URL) {
+    console.error("Warning: HONCHO_API_KEY is not set. Tool calls against api.honcho.dev will fail until you export HONCHO_API_KEY or run `honcho init`.");
+  } else {
+    console.error(`Warning: HONCHO_API_KEY is not set. Continuing against ${baseUrl}; this only works when the self-hosted Honcho server accepts unauthenticated requests.`);
+  }
+}
 var config2 = {
   apiKey,
   userName,

@@ -26,8 +26,8 @@ source tree.
 The local MCP server reads standard Honcho environment variables first, then
 falls back to `~/.honcho/config.json` when available:
 
-- `HONCHO_API_KEY` — required unless `honcho init` already stored `apiKey`
-- `HONCHO_API_URL` — optional, defaults to `https://api.honcho.dev`
+- `HONCHO_API_KEY` — required for `api.honcho.dev`; optional for self-hosted servers that disable auth
+- `HONCHO_API_URL` / `HONCHO_BASE_URL` / `HONCHO_URL` — optional API base URL override
 - `HONCHO_WORKSPACE_ID` — optional, defaults to `default`
 - `HONCHO_USER_NAME` — optional
 - `HONCHO_ASSISTANT_NAME` — optional
